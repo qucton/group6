@@ -3,113 +3,70 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class luonggiac extends JFrame {
+public class LuongGiac extends JFrame {
     private JTextField angleField;
     private JTextArea resultArea;
 
-    public luonggiac() {
-        setTitle("Trigonometric Calculator");
+    public LuongGiac() {
+        setTitle("Máy Tính Lượng Giác");
         setSize(400, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new FlowLayout());
+        // Panel chứa các thành phần nhập và nút chức năng
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
 
-        JLabel angleLabel = new JLabel("Enter angle in degrees:");
-        inputPanel.add(angleLabel);
-
+        // Nhãn và ô nhập độ
+        JLabel angleLabel = new JLabel("Nhập độ:");
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        inputPanel.add(angleLabel, gbc);
+        
         angleField = new JTextField(10);
-        inputPanel.add(angleField);
+        gbc.gridx = 1;
+        gbc.gridy = 0;
+        inputPanel.add(angleField, gbc);
 
-        JButton sbt = new JButton("sin");
-        sbt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("sin");
-            }
-        });
-        inputPanel.add(sbt);
- JButton tanButton = new JButton("tan");
-        tanButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("tan");
-            }
-        });
-        inputPanel.add(tanButton);
+        // Nút chức năng
+        String[] functionButtons = {"sin", "cos", "tan", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh"};
+        int row = 1;
+        int col = 0;
 
-        JButton arcsbt = new JButton("arcsin");
-        arcsbt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("arcsin");
-            }
-        });
-        inputPanel.add(arcsbt);
+        for (String function : functionButtons) {
+            JButton button = new JButton(function);
+            button.addActionListener(e -> calculateTrigonometricFunction(function));
+            gbc.gridx = col;
+            gbc.gridy = row;
+            inputPanel.add(button, gbc);
 
-        JButton arccosButton = new JButton("arccos");
-        arccosButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("arccos");
+            col++;
+            if (col > 2) {
+                col = 0;
+                row++;
             }
-        });
-        inputPanel.add(arccosButton);
+        }
 
-        JButton aButton = new JButton("a");
-        aButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("a");
-            }
-        });
-        inputPanel.add(aButton);
+        // Nút tính tất cả các đáp án
+        JButton calculateAllButton = new JButton("Tất Cả Đáp Án");
+        calculateAllButton.addActionListener(e -> tinhHamLuongGiac());
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 3;
+        inputPanel.add(calculateAllButton, gbc);
 
-        JButton sinhButton = new JButton("sinh");
-        sinhButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("sinh");
-            }
-        });
-        inputPanel.add(sinhButton);
-
-        JButton coshButton = new JButton("cosh");
-        coshButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("cosh");
-            }
-        });
-        inputPanel.add(coshButton);
-
-        JButton tanhButton = new JButton("tanh");
-        tanhButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateTrigonometricFunction("tanh");
-            }
-        });
-        inputPanel.add(tanhButton);
-
-        JButton calculateAllButton = new JButton("Calculate All");
-        calculateAllButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculateAllTrigonometricFunctions();
-            }
-        });
-        inputPanel.add(calculateAllButton);
-
+        // Thêm Panel vào phía trên cửa sổ
         add(inputPanel, BorderLayout.NORTH);
 
+        // Vùng hiển thị kết quả
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultArea);
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    // Phương thức tính một hàm lượng giác khi nút chức năng được nhấn
     private void calculateTrigonometricFunction(String function) {
         try {
             double angleDegree = Double.parseDouble(angleField.getText());
@@ -132,7 +89,7 @@ public class luonggiac extends JFrame {
                 case "arccos":
                     result = Math.acos(angleRadian);
                     break;
-                case "a":
+                case "arctan":
                     result = Math.atan(angleRadian);
                     break;
                 case "sinh":
@@ -147,29 +104,27 @@ public class luonggiac extends JFrame {
             }
 
             resultArea.setText(function + "(" + angleDegree + "°) = " + result);
+            resultArea.append("------------\n");
         } catch (NumberFormatException ex) {
             resultArea.setText("vui lòng nhập độ.");
         }
     }
 
     private void calculateAllTrigonometricFunctions() {
-        calculateTrigonometricFunction("sin");
-        calculateTrigonometricFunction("cos");
-        calculateTrigonometricFunction("tan");
-        calculateTrigonometricFunction("arcsin");
-        calculateTrigonometricFunction("arccos");
-        calculateTrigonometricFunction("a");
-        calculateTrigonometricFunction("sinh");
-        calculateTrigonometricFunction("cosh");
-        calculateTrigonometricFunction("tanh");
-    }
+         resultArea.setText(""); // Xóa nội dung cũ trước khi tính toán tất cả các hàm
 
+        // Mảng chứa tên của tất cả các hàm lượng giác
+        String[] functions = {"sin", "cos", "tan", "arcsin", "arccos", "arctan", "sinh", "cosh", "tanh"};
+        for (String function : functions) {
+            calculateTrigonometricFunction(function);
+        }
+    }
+    }
+    // Phương thức chính để chạy ứng dụng
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                luonggiac calculator = new luonggiac();
-                calculator.setVisible(true);
-            }
+            SwingUtilities.invokeLater(() -> {
+            LuongGiac calculator = new LuongGiac();
+            calculator.setVisible(true);
         });
     }
-}
+
